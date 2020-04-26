@@ -39,6 +39,28 @@ func add(w http.ResponseWriter, r *http.Request){
 		} else {
 			fmt.Println(err)
 		}
+}
+
+func addUser(w http.ResponseWriter, r *http.Request){
+	ctx := r.Context()
+
+	id, err := strconv.ParseUint(chi.URLParam(r, "id"), 10, 64)
+	quantity, err := strconv.ParseUint(chi.URLParam(r, "quantity"), 10, 64)
+	name := chi.URLParam(r, "name")
+	
+	if (err != nil){
+		fmt.Println(err)
+	}
+
+	conn, err := grpc.Dial("localhost:8005", grpc.WithInsecure())
+	client := proto.NewAddServiceClient(conn)
+
+		req := &proto.AddUserRequest{Id: int64(id), Quantity: int64(quantity), Name: string(name)}
+		if response, err := client.AddUser(ctx, req); err == nil {
+			fmt.Println("result: ", response.Result)
+		} else {
+			fmt.Println(err)
+		}
 
 
 }
@@ -72,6 +94,9 @@ func main() {
 
 	router.Route("/grpc/{a}", func(router chi.Router) {
 		router.Get("/", add)
+	  })
+	router.Route("/adduser/{id}/{quantity}/{name}", func(router chi.Router) {
+		router.Get("/", addUser)
 	  })
 
 	err := http.ListenAndServe(":8080", router)
