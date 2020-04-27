@@ -2,7 +2,6 @@ package main
 
 import (
 	"net/http"
-
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/handler/transport"
 	"github.com/99designs/gqlgen/graphql/playground"
@@ -65,6 +64,7 @@ func addUser(w http.ResponseWriter, r *http.Request){
 
 }
 
+
 func main() {
 	router := chi.NewRouter()
 
@@ -102,5 +102,6 @@ func main() {
 	err := http.ListenAndServe(":8080", router)
 	if err != nil {
 		panic(err)
-	}
+	} 
+
 }
