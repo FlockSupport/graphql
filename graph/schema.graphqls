@@ -4,20 +4,25 @@
 
 
 type User {
-  id: ID!
+  id: Int!
   name: String!
-  quantity: Int!
+  age: Int!
 }
 
 type Query {
-  users: [User!]!
+  users: [User!]
+  singleUser(input: IdInput!): User!
+}
+
+input IdInput {
+  id: Int!
 }
 
 
 input NewUser {
-  id: ID!
+  id: Int!
   name: String!
-  quantity: Int!
+  age: Int!
 }
 
 type Mutation {
