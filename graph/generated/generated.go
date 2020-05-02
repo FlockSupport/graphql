@@ -48,14 +48,15 @@ type ComplexityRoot struct {
 	}
 
 	Query struct {
-		SingleUser func(childComplexity int, input model.IDInput) int
+		SingleUser func(childComplexity int, input model.UIDInput) int
 		Users      func(childComplexity int) int
 	}
 
 	User struct {
-		Age  func(childComplexity int) int
-		ID   func(childComplexity int) int
-		Name func(childComplexity int) int
+		Age   func(childComplexity int) int
+		Email func(childComplexity int) int
+		ID    func(childComplexity int) int
+		UID   func(childComplexity int) int
 	}
 }
 
@@ -64,7 +65,7 @@ type MutationResolver interface {
 }
 type QueryResolver interface {
 	Users(ctx context.Context) ([]*model.User, error)
-	SingleUser(ctx context.Context, input model.IDInput) (*model.User, error)
+	SingleUser(ctx context.Context, input model.UIDInput) (*model.User, error)
 }
 
 type executableSchema struct {
@@ -104,7 +105,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Query.SingleUser(childComplexity, args["input"].(model.IDInput)), true
+		return e.complexity.Query.SingleUser(childComplexity, args["input"].(model.UIDInput)), true
 
 	case "Query.users":
 		if e.complexity.Query.Users == nil {
@@ -120,6 +121,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.User.Age(childComplexity), true
 
+	case "User.email":
+		if e.complexity.User.Email == nil {
+			break
+		}
+
+		return e.complexity.User.Email(childComplexity), true
+
 	case "User.id":
 		if e.complexity.User.ID == nil {
 			break
@@ -127,12 +135,12 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.User.ID(childComplexity), true
 
-	case "User.name":
-		if e.complexity.User.Name == nil {
+	case "User.uid":
+		if e.complexity.User.UID == nil {
 			break
 		}
 
-		return e.complexity.User.Name(childComplexity), true
+		return e.complexity.User.UID(childComplexity), true
 
 	}
 	return 0, false
@@ -205,23 +213,24 @@ var sources = []*ast.Source{
 
 type User {
   id: Int!
-  name: String!
+  email: String!
+  uid: String!
   age: Int!
 }
 
 type Query {
   users: [User!]
-  singleUser(input: IdInput!): User!
+  singleUser(input: UidInput!): User!
 }
 
-input IdInput {
-  id: Int!
+input UidInput {
+  uid: String!
 }
 
 
 input NewUser {
-  id: Int!
-  name: String!
+  email: String!
+  uid: String!
   age: Int!
 }
 
@@ -266,9 +275,9 @@ func (ec *executionContext) field_Query___type_args(ctx context.Context, rawArgs
 func (ec *executionContext) field_Query_singleUser_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 model.IDInput
+	var arg0 model.UIDInput
 	if tmp, ok := rawArgs["input"]; ok {
-		arg0, err = ec.unmarshalNIdInput2githubᚗcomᚋFlockSupportᚋgraphqlᚋgraphᚋmodelᚐIDInput(ctx, tmp)
+		arg0, err = ec.unmarshalNUidInput2githubᚗcomᚋFlockSupportᚋgraphqlᚋgraphᚋmodelᚐUIDInput(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -409,7 +418,7 @@ func (ec *executionContext) _Query_singleUser(ctx context.Context, field graphql
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().SingleUser(rctx, args["input"].(model.IDInput))
+		return ec.resolvers.Query().SingleUser(rctx, args["input"].(model.UIDInput))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -529,7 +538,7 @@ func (ec *executionContext) _User_id(ctx context.Context, field graphql.Collecte
 	return ec.marshalNInt2int(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _User_name(ctx context.Context, field graphql.CollectedField, obj *model.User) (ret graphql.Marshaler) {
+func (ec *executionContext) _User_email(ctx context.Context, field graphql.CollectedField, obj *model.User) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -546,7 +555,41 @@ func (ec *executionContext) _User_name(ctx context.Context, field graphql.Collec
 	ctx = graphql.WithFieldContext(ctx, fc)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Name, nil
+		return obj.Email, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _User_uid(ctx context.Context, field graphql.CollectedField, obj *model.User) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "User",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.UID, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1652,15 +1695,27 @@ func (ec *executionContext) ___Type_ofType(ctx context.Context, field graphql.Co
 
 // region    **************************** input.gotpl *****************************
 
-func (ec *executionContext) unmarshalInputIdInput(ctx context.Context, obj interface{}) (model.IDInput, error) {
-	var it model.IDInput
+func (ec *executionContext) unmarshalInputNewUser(ctx context.Context, obj interface{}) (model.NewUser, error) {
+	var it model.NewUser
 	var asMap = obj.(map[string]interface{})
 
 	for k, v := range asMap {
 		switch k {
-		case "id":
+		case "email":
 			var err error
-			it.ID, err = ec.unmarshalNInt2int(ctx, v)
+			it.Email, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "uid":
+			var err error
+			it.UID, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "age":
+			var err error
+			it.Age, err = ec.unmarshalNInt2int(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -1670,27 +1725,15 @@ func (ec *executionContext) unmarshalInputIdInput(ctx context.Context, obj inter
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputNewUser(ctx context.Context, obj interface{}) (model.NewUser, error) {
-	var it model.NewUser
+func (ec *executionContext) unmarshalInputUidInput(ctx context.Context, obj interface{}) (model.UIDInput, error) {
+	var it model.UIDInput
 	var asMap = obj.(map[string]interface{})
 
 	for k, v := range asMap {
 		switch k {
-		case "id":
+		case "uid":
 			var err error
-			it.ID, err = ec.unmarshalNInt2int(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "name":
-			var err error
-			it.Name, err = ec.unmarshalNString2string(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "age":
-			var err error
-			it.Age, err = ec.unmarshalNInt2int(ctx, v)
+			it.UID, err = ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -1810,8 +1853,13 @@ func (ec *executionContext) _User(ctx context.Context, sel ast.SelectionSet, obj
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
-		case "name":
-			out.Values[i] = ec._User_name(ctx, field, obj)
+		case "email":
+			out.Values[i] = ec._User_email(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "uid":
+			out.Values[i] = ec._User_uid(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
@@ -2090,10 +2138,6 @@ func (ec *executionContext) marshalNBoolean2bool(ctx context.Context, sel ast.Se
 	return res
 }
 
-func (ec *executionContext) unmarshalNIdInput2githubᚗcomᚋFlockSupportᚋgraphqlᚋgraphᚋmodelᚐIDInput(ctx context.Context, v interface{}) (model.IDInput, error) {
-	return ec.unmarshalInputIdInput(ctx, v)
-}
-
 func (ec *executionContext) unmarshalNInt2int(ctx context.Context, v interface{}) (int, error) {
 	return graphql.UnmarshalInt(v)
 }
@@ -2124,6 +2168,10 @@ func (ec *executionContext) marshalNString2string(ctx context.Context, sel ast.S
 		}
 	}
 	return res
+}
+
+func (ec *executionContext) unmarshalNUidInput2githubᚗcomᚋFlockSupportᚋgraphqlᚋgraphᚋmodelᚐUIDInput(ctx context.Context, v interface{}) (model.UIDInput, error) {
+	return ec.unmarshalInputUidInput(ctx, v)
 }
 
 func (ec *executionContext) marshalNUser2githubᚗcomᚋFlockSupportᚋgraphqlᚋgraphᚋmodelᚐUser(ctx context.Context, sel ast.SelectionSet, v model.User) graphql.Marshaler {

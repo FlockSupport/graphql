@@ -5,23 +5,24 @@
 
 type User {
   id: Int!
-  name: String!
+  email: String!
+  uid: String!
   age: Int!
 }
 
 type Query {
   users: [User!]
-  singleUser(input: IdInput!): User!
+  singleUser(input: UidInput!): User!
 }
 
-input IdInput {
-  id: Int!
+input UidInput {
+  uid: String!
 }
 
 
 input NewUser {
-  id: Int!
-  name: String!
+  email: String!
+  uid: String!
   age: Int!
 }
 

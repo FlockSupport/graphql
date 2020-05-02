@@ -2,18 +2,19 @@
 
 package model
 
-type IDInput struct {
-	ID int `json:"id"`
+type NewUser struct {
+	Email string `json:"email"`
+	UID   string `json:"uid"`
+	Age   int    `json:"age"`
 }
 
-type NewUser struct {
-	ID   int    `json:"id"`
-	Name string `json:"name"`
-	Age  int    `json:"age"`
+type UIDInput struct {
+	UID string `json:"uid"`
 }
 
 type User struct {
-	ID   int    `json:"id"`
-	Name string `json:"name"`
-	Age  int    `json:"age"`
+	ID    int    `json:"id"`
+	Email string `json:"email"`
+	UID   string `json:"uid"`
+	Age   int    `json:"age"`
 }

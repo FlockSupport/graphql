@@ -14,13 +14,13 @@ import (
 )
 
 func (r *mutationResolver) CreateUser(ctx context.Context, input model.NewUser) (*model.User, error) {
-	mutations.CreateUser(context.Background(), int64(input.ID), int64(input.Age), input.Name)
+	createdUser, err := mutations.CreateUser(context.Background(), int64(input.Age), input.Email, input.UID)
 
-	user := &model.User{
-		ID:   input.ID,
-		Name: input.Name,
-		Age:  input.Age,
+	if err != nil {
+		fmt.Println(err)
 	}
+
+	user := &model.User{ID: int(createdUser.Id), Age: int(createdUser.Age), Email: createdUser.Email, UID: createdUser.Uid}
 
 	return user, nil
 }
@@ -33,22 +33,20 @@ func (r *queryResolver) Users(ctx context.Context) ([]*model.User, error) {
 		fmt.Println(err)
 	}
 	for _, record := range response {
-		fmt.Printf("Name: %s Age: %d\n", record.Name, record.Age)
-		fmt.Println("")
-		users = append(users, &model.User{ID: int(record.Id), Age: int(record.Age), Name: record.Name})
+		users = append(users, &model.User{ID: int(record.Id), Age: int(record.Age), Email: record.Email, UID: record.Uid})
 	}
 
 	return users, nil
 }
 
-func (r *queryResolver) SingleUser(ctx context.Context, input model.IDInput) (*model.User, error) {
-	response, err := queries.GetSingleUser(context.Background(), int64(input.ID))
+func (r *queryResolver) SingleUser(ctx context.Context, input model.UIDInput) (*model.User, error) {
+	response, err := queries.GetSingleUser(context.Background(), input.UID)
 
 	if err != nil {
 		fmt.Println(err)
 	}
 
-	user := &model.User{ID: int(response.Id), Age: int(response.Age), Name: response.Name}
+	user := &model.User{ID: int(response.Id), Age: int(response.Age), Email: response.Email, UID: response.Uid}
 
 	return user, nil
 }

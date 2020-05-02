@@ -8,8 +8,8 @@ import (
 	"google.golang.org/grpc"
 )
 
-func CreateUser(ctx context.Context, id int64, age int64, name string) {
-	fmt.Println("REACHED!")
+
+func CreateUser(ctx context.Context, age int64, email string, uid string) (*proto.User, error){
 	conn, err := grpc.Dial("localhost:8005", grpc.WithInsecure())
 	if err != nil {
 		fmt.Println(err)
@@ -17,11 +17,8 @@ func CreateUser(ctx context.Context, id int64, age int64, name string) {
 
 	client := proto.NewAddServiceClient(conn)
 
-	req := &proto.AddUserRequest{Id: int64(id), Age: int64(age), Name: string(name)}
-	if response, err := client.AddUser(ctx, req); err == nil {
-		fmt.Println("result: ", response.Result)
-	} else {
-		fmt.Println(err)
-	}
+	req := &proto.AddUserRequest{Age: int64(age), Email: email, Uid: uid}
+	response, err := client.AddUser(ctx, req)
+	return response, nil
 
 }
