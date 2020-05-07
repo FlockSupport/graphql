@@ -4,7 +4,6 @@ package mutations
 import (
 	"context"
 	"flock-support/back/proto"
-	"fmt"
 	"google.golang.org/grpc"
 )
 
@@ -12,7 +11,7 @@ import (
 func CreateUser(ctx context.Context, age int64, email string, uid string) (*proto.User, error){
 	conn, err := grpc.Dial("localhost:8005", grpc.WithInsecure())
 	if err != nil {
-		fmt.Println(err)
+		return nil, err
 	}
 
 	client := proto.NewAddServiceClient(conn)

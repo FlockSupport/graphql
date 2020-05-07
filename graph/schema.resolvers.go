@@ -7,7 +7,6 @@ import (
 	"context"
 	"flock-support/graphql/mutations"
 	"flock-support/graphql/queries"
-	"fmt"
 
 	"github.com/FlockSupport/graphql/graph/generated"
 	"github.com/FlockSupport/graphql/graph/model"
@@ -17,7 +16,7 @@ func (r *mutationResolver) CreateUser(ctx context.Context, input model.NewUser) 
 	createdUser, err := mutations.CreateUser(context.Background(), int64(input.Age), input.Email, input.UID)
 
 	if err != nil {
-		fmt.Println(err)
+		return nil, err
 	}
 
 	user := &model.User{ID: int(createdUser.Id), Age: int(createdUser.Age), Email: createdUser.Email, UID: createdUser.Uid}
@@ -30,7 +29,7 @@ func (r *queryResolver) Users(ctx context.Context) ([]*model.User, error) {
 	var users []*model.User // an empty list
 
 	if err != nil {
-		fmt.Println(err)
+		return nil, err
 	}
 	for _, record := range response {
 		users = append(users, &model.User{ID: int(record.Id), Age: int(record.Age), Email: record.Email, UID: record.Uid})
@@ -43,7 +42,7 @@ func (r *queryResolver) SingleUser(ctx context.Context, input model.UIDInput) (*
 	response, err := queries.GetSingleUser(context.Background(), input.UID)
 
 	if err != nil {
-		fmt.Println(err)
+		return nil, err
 	}
 
 	user := &model.User{ID: int(response.Id), Age: int(response.Age), Email: response.Email, UID: response.Uid}

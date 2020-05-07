@@ -7,6 +7,7 @@ require (
 	github.com/gin-gonic/gin v1.6.2
 	github.com/go-chi/chi v4.0.4+incompatible
 	github.com/gorilla/websocket v1.2.0
+	github.com/pkg/errors v0.8.1
 	github.com/rs/cors v1.6.0
 	github.com/vektah/gqlparser/v2 v2.0.1
 	google.golang.org/grpc v1.28.1

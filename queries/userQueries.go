@@ -3,8 +3,8 @@ package queries
 import (
 	"context"
 	"flock-support/back/proto"
-	"fmt"
 	"google.golang.org/grpc"
+	"github.com/pkg/errors"
 )
 
 
@@ -12,14 +12,19 @@ func GetAllUsers(ctx context.Context) ([]*proto.User , error){
 
 	conn, err := grpc.Dial("localhost:8005", grpc.WithInsecure())
 	if err != nil{
-		fmt.Println(err)
+		return nil, errors.Wrap(err, "GraphQL: Unable to connect to port 8005")
 	}
 	
 	client := proto.NewAddServiceClient(conn)
 
 	req := &proto.GetAllUsersRequest{}
 	response, err := client.GetAllUsers(ctx, req); 
-	return response.Users,nil
+	if (err != nil){
+		return nil, err
+	} else {
+		return response.Users,nil
+	}
+	
 
 }
 
@@ -29,11 +34,15 @@ func GetSingleUser(ctx context.Context, uid string)(*proto.User, error){
 	client := proto.NewAddServiceClient(conn)
 
 	if (err != nil){
-		fmt.Println(err)
+		return nil, errors.Wrap(err, "GraphQL: Unable to connect to port 8005")
 	}
 	
 	req := &proto.GetSingleUserRequest{Uid: uid}
 	response, err := client.GetSingleUser(ctx, req)
-	return response, nil
+	if (err != nil){
+		return nil, err
+	} else {
+		return response, nil
+	}
 	
 }
